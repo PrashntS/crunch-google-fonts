@@ -28,11 +28,14 @@ class parse:
         self.stylesheets.append(cssutils.parseString(css))
 
         for rule in self.stylesheets[-1]:
-            print(rule)
-            if rule.type == rule.STYLE_RULE:
-                print(rule.style)
-
+            if rule.type == rule.FONT_FACE_RULE:
+                for prop in rule.style:
+                    if prop.name == 'src':
+                        font_sources = prop.value
+                        print(font_sources)
         return False
+
+    #def 
 
 if __name__ == "__main__":
     css = imitator().download(test_uri, 'chrome_mac')
