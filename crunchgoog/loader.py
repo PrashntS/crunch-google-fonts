@@ -1,16 +1,40 @@
-import tinycss
+import cssutils
 import urllib.request
 
-test_uri = "http://fonts.googleapis.com/css?family=Open+Sans:300italic,400|Slabo+27px"
+test_uri = "http://localhost:90/test_server.css"
 
-class get_css():
+class imitator:
 
-    def __init__(self, uri):
-        self.download(uri)
-    
-    def download(self, uri):
+    user_agents = {
+        'self': 'Mozilla/5.0 Chrunch Google Fonts',
+        'chrome_mac': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36',
+        'safari_mac': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/7046A194A'
+    }
+
+    def download(self, uri, browser = user_agents['self']):
+        opener = urllib.request.build_opener()
+        opener.addheaders = [('User-agent', self.user_agents[browser])]
+        try:
+            return (opener.open(uri).read())
+        except:
+            return False
+
+class parse:
+    def __init__(self):
+        #self.parser = cssutils.p('page3')
+        self.stylesheets = []
+
+    def get_font_uri(self, css):
+        self.stylesheets.append(cssutils.parseString(css))
+
+        for rule in self.stylesheets[-1]:
+            print(rule)
+            if rule.type == rule.STYLE_RULE:
+                print(rule.style)
+
         return False
 
-
 if __name__ == "__main__":
-    print(get_css(test_uri))
+    css = imitator().download(test_uri, 'chrome_mac')
+
+    parse().get_font_uri(css)
