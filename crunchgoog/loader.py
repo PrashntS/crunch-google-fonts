@@ -106,8 +106,15 @@ class parse:
                 Minion.write(b"\r\n")
         return True
 
+class routines:
+    def fetch_all(base_stylesheet_uri):
+        css_reparser = parse()
+
+        for browser, user_agents in imitator.user_agents.items():
+            returned_css = imitator().fetch(base_stylesheet_uri, browser)
+            css_reparser.routine(returned_css)
+
+        css_reparser.save_stylesheet()
+
 if __name__ == "__main__":
-    css1 = imitator().fetch(test_uri, 'chrome_mac')
-    parser = parse()
-    parser.routine(css1)
-    parser.save_stylesheet()
+    routines.fetch_all(test_uri)
