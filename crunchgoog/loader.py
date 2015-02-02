@@ -3,8 +3,7 @@ import urllib.request
 import os
 import re
 import uuid
-
-test_uri = "http://localhost:90/test_server.css"
+import argparse
 
 class imitator:
 
@@ -107,7 +106,7 @@ class parse:
         return True
 
 class routines:
-    def fetch_all(base_stylesheet_uri):
+    def fetch(base_stylesheet_uri):
         css_reparser = parse()
 
         for browser, user_agents in imitator.user_agents.items():
@@ -117,4 +116,10 @@ class routines:
         css_reparser.save_stylesheet()
 
 if __name__ == "__main__":
-    routines.fetch_all(test_uri)
+    parser = argparse.ArgumentParser(
+        description='Crunches the Google Font CSS, and liberates them from their Server! Very helpful, if you want to test your website locally, or, serve over your own Server/CDN.',
+        prog = 'Crunch Google Fonts')
+
+
+
+    #routines.fetch_all(test_uri)
