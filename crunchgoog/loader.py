@@ -52,7 +52,7 @@ class attribute_dictionary():
         else:
             return False
 
-    def get_replaced_string(self):
+    def stringify(self):
         return self.source
 
 class parse:
@@ -89,7 +89,7 @@ class parse:
             replacement_list.append('fonts/'+font_file_name)
 
         attributes_list.set('url', replacement_list)
-        return attributes_list.get_replaced_string()
+        return attributes_list.stringify()
 
     def f_name(self):
         return str(uuid.uuid4())
@@ -119,6 +119,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Crunches the Google Font CSS, and liberates them from their Server! Very helpful, if you want to test your website locally, or, serve over your own Server/CDN.',
         prog = 'Crunch Google Fonts')
+    parser.print_help()
 
 
 
