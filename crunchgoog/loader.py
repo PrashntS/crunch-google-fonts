@@ -119,6 +119,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Crunches the Google Font CSS, and liberates them from their Server! Very helpful, if you want to test your website locally, or, serve over your own Server/CDN.',
         prog = 'Crunch Google Fonts')
+
+    parser.add_argument('-s', "--source", nargs='?', default='LOL', help='The CSS URI.')
+    parser.add_argument('-d', "--destination", nargs='?', default='LOL', help='The CSS URI.')
+    parser.add_argument('-r', "--relative_path", nargs='?', default='LOL', help='The CSS URI.')
+
+    args = parser.parse_args()
     parser.print_help()
 
 
