@@ -5,6 +5,12 @@ import re
 import uuid
 import argparse
 
+options = {
+    'dir_location': os.curdir + os.sep + 'fonts',
+    'relative_uri': 'fonts/',
+    'output_css': str(uuid.uuid4())
+}
+
 class imitator:
 
     user_agents = {
@@ -25,15 +31,49 @@ class imitator:
         return urllib.request.urlretrieve(uri, location)[0]
 
 class attribute_dictionary():
+    """
+    Parses, Modifies, and Returns the attribute dictionary. Sample attribute
+    dictionary is of form:
+    Example: a(val_a), b( "val_b" ), a('val_c'). Notice the varying Quotes, and Spaces.
+    The above attribute dictionary is parsed to a Python Dictionary-like interface as
+    source = {
+        a: "val_a",
+        b: "val_b",
+        a: "val_c"
+    }
+    Notice that the values are automatically type-promoted/type-casted to String.
+    Also, the keys are positional - not named.
+
+    All properties are Greedy.
+    """
+
     def __init__(self, source):
+        """Initializes the class instance."""
         self.source = source
         self.pattern = r"[ \"\']*" + r"{0}" + r"\(" + r"[ \"\']*" + r"(.*?)" + r"[ \"\']*" + r"\)" + r"[ \"\']*"
 
     def get(self, key):
+        """
+        Returns the Values associated with the key. Since the attribute_dictionary
+        can inherently have multiple values, this always returns a List containing
+        every encountered value of the given Key. Returns an empty List in case of
+        invalid key.
+        Greedy.
+        """
         pattern = self.pattern.format(key)
         return re.findall(pattern, self.source)
 
     def set(self, key, value):
+        """
+        Sets the value associated to the given key. If the "value" argument is
+        passed a String, Every Instances of the Key in the attribute_dictionary
+        are set to this String.
+        If the value argument is passed a List, instead, The "positional" values
+        of the Key are set in the order of appearance in the List. Obviously the
+        dimension of value must be equal to the number of occurrence of the key
+        (len(get(key))).
+        Greedy.
+        """
         dat = self.get(key)
         pattern = self.pattern.format(key)
 
@@ -44,21 +84,27 @@ class attribute_dictionary():
                 return True
             else:
                 return False
-
         elif type(value) is str:
             self.source = re.sub(pattern, " {0}({1}) ".format(key, value), self.source)
             return True
-
         else:
             return False
 
     def stringify(self):
+        """Returns the String representation of attribute_dictionary."""
         return self.source
 
-class parse:
+class crunch:
+    """
+    Provides methods to Crunch the CSS URI.
+    """
+
     def __init__(self):
+        """
+        Prepares the class instance, sets the imitator instance, and retrieves defaults.
+        """
         self.stylesheets = []
-        self.dir_location = os.curdir + os.sep + 'fonts'
+        self.dir_location = options['dir_location']
         self.file_name = self.dir_location + os.sep + '{0}'
         self.downloader = imitator.download
         if not os.path.isdir(self.dir_location):
@@ -86,7 +132,7 @@ class parse:
             font_file_name = self.f_name()
             font_location = self.file_name.format(font_file_name)
             saved_font_uri = imitator().download(font, font_location)
-            replacement_list.append('fonts/'+font_file_name)
+            replacement_list.append(options['relative_uri'] + font_file_name)
 
         attributes_list.set('url', replacement_list)
         return attributes_list.stringify()
@@ -94,11 +140,8 @@ class parse:
     def f_name(self):
         return str(uuid.uuid4())
 
-    def save_stylesheet(self, location = None):
-        if location is None:
-            location = os.curdir
-        file_loc = location + os.sep + "font_" + self.f_name() + ".css"
-        print(file_loc)
+    def save_stylesheet(self):
+        file_loc = options['dir_location'] + os.sep + options['output_css'] + ".css"
         with open(file_loc, "wb") as Minion:
             for sheet in self.stylesheets:
                 Minion.write(sheet.cssText)
@@ -120,11 +163,12 @@ if __name__ == "__main__":
         description='Crunches the Google Font CSS, and liberates them from their Server! Very helpful, if you want to test your website locally, or, serve over your own Server/CDN.',
         prog = 'Crunch Google Fonts')
 
-    parser.add_argument('-s', "--source", nargs='?', default='LOL', help='The CSS URI.')
-    parser.add_argument('-d', "--destination", nargs='?', default='LOL', help='The CSS URI.')
+    parser.add_argument('-s', "--source", nargs='?', help='The CSS URI.')
+    parser.add_argument('-d', "--destination", nargs='?', default=os.curdir, help='The CSS URI.')
     parser.add_argument('-r', "--relative_path", nargs='?', default='LOL', help='The CSS URI.')
 
     args = parser.parse_args()
+    print(args)
     parser.print_help()
 
 
