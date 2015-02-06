@@ -7,8 +7,10 @@ import argparse
 
 options = {
     'dir_location': os.curdir + os.sep + 'fonts',
+    'css_location': os.curdir,
     'relative_uri': 'fonts/',
-    'output_css': str(uuid.uuid4())
+    'output_css': str(uuid.uuid4()),
+    'debug': False
 }
 
 class imitator:
@@ -116,7 +118,6 @@ class crunch:
         self.stylesheets = []
         self.dir_location = options['dir_location']
         self.file_name = self.dir_location + os.sep + '{0}'
-        self.downloader = imitator.download
         if not os.path.isdir(self.dir_location):
             os.makedirs(self.dir_location)
 
@@ -160,6 +161,9 @@ class crunch:
             replacement_list.append(options['relative_uri'] + font_file_name)
 
         attributes_list.set('url', replacement_list)
+        
+        progress("OKA: Downloaded {0} font.".format(len(font_list)))
+
         return attributes_list.stringify()
 
     def f_name(self):
@@ -168,7 +172,7 @@ class crunch:
 
     def save_stylesheet(self):
         """Saves the final output css."""
-        file_loc = options['dir_location'] + os.sep + options['output_css'] + ".css"
+        file_loc = options['css_location'] + os.sep + options['output_css'] + ".css"
         with open(file_loc, "wb") as Minion:
             for sheet in self.stylesheets:
                 Minion.write(sheet.cssText)
@@ -176,29 +180,59 @@ class crunch:
         return True
 
 def fetch(base_stylesheet_uri):
-    css_reparser = parse()
+    css_reparser = crunch()
 
     for browser, user_agents in imitator.user_agents.items():
+        progress("OKA: Beginning download Routine for '{0}'.".format(browser), True)
         returned_css = imitator().fetch(base_stylesheet_uri, browser)
-        css_reparser.routine(returned_css)
-
+        try:
+            css_reparser.routine(returned_css)
+        except:
+            progress("ERR: Aborting routine for '{0}'. Bad CSS retrieved.".format(browser), True)
+    
+    progress("OKA: Saving the Style sheet.", True)
     css_reparser.save_stylesheet()
+
+def progress(str, force = False):
+    if options['debug']:
+        print(str)
+    elif force:
+        print(str)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Crunches the Google Font CSS, and liberates them from their Server! Very helpful, if you want to test your website locally, or, serve over your own Server/CDN.',
-        prog = 'Crunch Google Fonts')
+        description = 'Crunches the Google Font CSS, and liberates them from their Server! Very helpful, if you want to test your website locally, or, serve over your own Server/CDN.',
+        prog = 'Crunch Google Fonts'
+    )
 
-    parser.add_argument('-s', "--source", nargs='?', help='The CSS URI.', required=True)
-    parser.add_argument('-d', "--destination", nargs='?', default=options['dir_location'], help='The CSS URI.')
-    parser.add_argument('-r', "--relative_path", nargs='?', default=options['relative_uri'], help='The CSS URI.')
-    parser.add_argument('-O', "--output", nargs='?', default=options['output_css'], help='The CSS URI.')
+    parser.add_argument(
+        '-s',
+        "--source",
+        nargs = '?',
+        help = 'The CSS URI.',
+        required = False)
+    parser.add_argument(
+        '-d',
+        "--destination",
+        nargs = '?',
+        default = options['dir_location'],
+        help = 'The CSS URI.')
+    parser.add_argument(
+        '-r',
+        "--relative_path",
+        nargs = '?',
+        default = options['relative_uri'],
+        help = 'The CSS URI.')
+    parser.add_argument(
+        '-o',
+        "--output",
+        nargs = '?',
+        default = options['output_css'],
+        help = 'The CSS URI.')
     args = parser.parse_args()
 
-    print(args)
-    options 
-    parser.print_help()
+    options['dir_location'] = args.destination
+    options['relative_uri'] = args.relative_path
+    options['output_css'] = args.output
 
-
-
-    #routines.fetch_all(test_uri)
+    fetch(args.source)
