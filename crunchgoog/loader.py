@@ -209,29 +209,36 @@ if __name__ == "__main__":
         '-s',
         "--source",
         nargs = '?',
-        help = 'The CSS URI.',
+        help = 'The CSS URI, obtained from Google Fonts Service..',
         required = False)
     parser.add_argument(
         '-d',
         "--destination",
         nargs = '?',
         default = options['dir_location'],
-        help = 'The CSS URI.')
+        help = 'Destination where to Store the Fonts.')
+    parser.add_argument(
+        '-p',
+        "--css_path",
+        nargs = '?',
+        default = options['css_location'],
+        help = 'Destination where to store the CSS file.')
     parser.add_argument(
         '-r',
         "--relative_path",
         nargs = '?',
         default = options['relative_uri'],
-        help = 'The CSS URI.')
+        help = 'The URI prefix, where the Fonts will be hosted.')
     parser.add_argument(
         '-o',
         "--output",
         nargs = '?',
         default = options['output_css'],
-        help = 'The CSS URI.')
+        help = 'Output name of the CSS file. Must not be already in the directory - raises and IO Exception.')
     args = parser.parse_args()
 
     options['dir_location'] = args.destination
+    options['css_location'] = args.css_path
     options['relative_uri'] = args.relative_path
     options['output_css'] = args.output
 
