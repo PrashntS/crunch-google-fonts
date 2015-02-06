@@ -12,6 +12,10 @@ options = {
 }
 
 class imitator:
+    """
+    Pretends to be a browser and downloads the supplied URL. The User Agent
+    Strings are supplied in the headers.
+    """
 
     user_agents = {
         'self': 'Mozilla/5.0 Chrunch Google Fonts',
@@ -20,6 +24,9 @@ class imitator:
     }
 
     def fetch(self, uri, browser = user_agents['self']):
+        """
+        Here used to download a CSS string, pretending to be a Browser.
+        """
         opener = urllib.request.build_opener()
         opener.addheaders = [('User-agent', self.user_agents[browser])]
         try:
@@ -28,6 +35,9 @@ class imitator:
             return False
 
     def download(self, uri, location):
+        """
+        Used here to download the Font Files into the said location.
+        """
         return urllib.request.urlretrieve(uri, location)[0]
 
 class attribute_dictionary():
@@ -111,6 +121,15 @@ class crunch:
             os.makedirs(self.dir_location)
 
     def routine(self, css):
+        """
+        Carries out the routine in this order:
+        1. Finds the FONT_FACE_RULE in the CSS.
+        2. Gets all the font sources that get us "url" to the remote font.
+        3. Call the sub routine "get_font_from_source" that fetches all the fonts
+           and returns the new attributes.
+        Always returns true.
+        """
+
         self.stylesheets.append(cssutils.parseString(css))
 
         for rule in self.stylesheets[-1]:
@@ -123,7 +142,13 @@ class crunch:
         return True
 
     def get_font_from_source(self, value):
-        # Retrieve the font. Save it, and return the new path.
+        """
+        This sub routine takes in the attributes_list, and iterates over all the
+        'url' elements. It downloads all the Fonts at the said url, and replaces
+        the attributes_list variables to the new location.
+        Returns the new attributes_list.
+        """
+
         attributes_list = attribute_dictionary(value)
         font_list = attributes_list.get('url')
         replacement_list = []
@@ -138,9 +163,11 @@ class crunch:
         return attributes_list.stringify()
 
     def f_name(self):
+        """Returns a Random Name for any purpose. Uses UUID."""
         return str(uuid.uuid4())
 
     def save_stylesheet(self):
+        """Saves the final output css."""
         file_loc = options['dir_location'] + os.sep + options['output_css'] + ".css"
         with open(file_loc, "wb") as Minion:
             for sheet in self.stylesheets:
@@ -148,27 +175,28 @@ class crunch:
                 Minion.write(b"\r\n")
         return True
 
-class routines:
-    def fetch(base_stylesheet_uri):
-        css_reparser = parse()
+def fetch(base_stylesheet_uri):
+    css_reparser = parse()
 
-        for browser, user_agents in imitator.user_agents.items():
-            returned_css = imitator().fetch(base_stylesheet_uri, browser)
-            css_reparser.routine(returned_css)
+    for browser, user_agents in imitator.user_agents.items():
+        returned_css = imitator().fetch(base_stylesheet_uri, browser)
+        css_reparser.routine(returned_css)
 
-        css_reparser.save_stylesheet()
+    css_reparser.save_stylesheet()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Crunches the Google Font CSS, and liberates them from their Server! Very helpful, if you want to test your website locally, or, serve over your own Server/CDN.',
         prog = 'Crunch Google Fonts')
 
-    parser.add_argument('-s', "--source", nargs='?', help='The CSS URI.')
-    parser.add_argument('-d', "--destination", nargs='?', default=os.curdir, help='The CSS URI.')
-    parser.add_argument('-r', "--relative_path", nargs='?', default='LOL', help='The CSS URI.')
-
+    parser.add_argument('-s', "--source", nargs='?', help='The CSS URI.', required=True)
+    parser.add_argument('-d', "--destination", nargs='?', default=options['dir_location'], help='The CSS URI.')
+    parser.add_argument('-r', "--relative_path", nargs='?', default=options['relative_uri'], help='The CSS URI.')
+    parser.add_argument('-O', "--output", nargs='?', default=options['output_css'], help='The CSS URI.')
     args = parser.parse_args()
+
     print(args)
+    options 
     parser.print_help()
 
 
