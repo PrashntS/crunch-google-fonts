@@ -1,9 +1,9 @@
+import argparse
 import cssutils
-import urllib.request
 import os
 import re
 import uuid
-import argparse
+import urllib.request
 
 options = {
     'dir_location': os.curdir + os.sep + 'fonts',
@@ -210,7 +210,7 @@ if __name__ == "__main__":
         "--source",
         nargs = '?',
         help = 'The CSS URI, obtained from Google Fonts Service..',
-        required = False)
+        required = True)
     parser.add_argument(
         '-d',
         "--destination",
